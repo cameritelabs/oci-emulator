@@ -4,3 +4,4 @@ pytest-black==0.3.7
 pytest-cov==2.7.1
 requests==2.25.1
 oci==2.32.0
+python-dotenv==0.15.0
