@@ -1,7 +1,7 @@
 ## How to debug?
 
 On module `oci==2.32.0` you can look for the file `base_client.py`.
-In this file you can look for the method `request`, inside it you can find the calling of method `self.session.request` which returns a response object.
+In this file you can look for the method `request`, inside it you can find the calling for the method `self.session.request` which returns a response object.
 You can use this object to debug the raw response for the API request.
 
 ![debug.png](debug.png)
