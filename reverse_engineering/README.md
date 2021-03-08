@@ -7,4 +7,5 @@ You can use this object to debug the raw response for the API request.
 ![debug.png](debug.png)
 
 Usually the raw response property names uses camelCase, the oci-sdk convert it to lowercase with words separated by underscores(Snake Case).
+
 Ex.: the raw property name `compartmentId` becomes `compartment_id` on oci-sdk return.
