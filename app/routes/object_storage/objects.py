@@ -193,4 +193,3 @@ def delete_object(namespace_name, bucket_name, subpath):
             else ""
         },
     )
-
