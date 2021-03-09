@@ -67,5 +67,18 @@ def create_bucket():
     print(a.status)
 
 
+def delete_bucket():
+    cli = oci.object_storage.ObjectStorageClient(
+        oci_config["config"], service_endpoint=service_endpoint
+    )
+
+    r = cli.delete_bucket(namespace_name="namespace_name", bucket_name="bucket_name")
+    print(r.request_id)
+    print(r.headers)
+    print(r.data)
+    print(r.status)
+
+
 create_bucket()
 list_buckets()
+delete_bucket()

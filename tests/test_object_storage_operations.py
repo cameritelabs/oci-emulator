@@ -44,6 +44,8 @@ class BucketRoutes(unittest.TestCase):
         self.assertEqual(r.status_code, 404)
         r = requests.post("http://localhost:12000/n/namespace/b")
         self.assertEqual(r.status_code, 404)
+        r = requests.delete("http://localhost:12000/n/namespace/b/bucket_name")
+        self.assertEqual(r.status_code, 404)
 
     def test_sample_route(self):
         cli = oci.object_storage.ObjectStorageClient(
@@ -64,9 +66,21 @@ class BucketRoutes(unittest.TestCase):
         )
         self.assertEqual(r.status, 200)
 
-        r = cli.list_buckets("namespace_name", "compartment_id")
+        r = cli.list_buckets(
+            namespace_name="namespace_name", compartment_id="compartment_id"
+        )
         self.assertEqual(r.status, 200)
         self.assertEqual(len(r.data), 1)
+
+        r = cli.delete_bucket(
+            namespace_name="namespace_name", bucket_name="bucket_name"
+        )
+        self.assertEqual(r.status, 200)
+        r = cli.list_buckets(
+            namespace_name="namespace_name", compartment_id="compartment_id"
+        )
+        self.assertEqual(r.status, 200)
+        self.assertEqual(len(r.data), 0)
 
     def tearDown(self):
         self.server.shutdown()
