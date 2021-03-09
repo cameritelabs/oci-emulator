@@ -15,8 +15,8 @@ oci_config = {
     }
 }
 
-service_endpoint = None  # Use it to test on a real environment
-# service_endpoint = "http://localhost:12000"  # Use it to test on mock environment
+# service_endpoint = None  # Use it to test on a real environment
+service_endpoint = "http://localhost:12000"  # Use it to test on mock environment
 namespace_name = os.getenv("NAMESPACE_NAME")
 compartment_id = os.getenv("COMPARTMENT_ID")
 
