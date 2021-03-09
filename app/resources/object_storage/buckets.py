@@ -77,3 +77,10 @@ def remove_bucket(namespace, bucket_name):
             return True, None
 
     return False, "not_found"
+
+
+def get_object(bucket, object_name):
+    for _object in bucket["_objects"]:
+        if _object["object_name"] == object_name:
+            return _object
+    return None
