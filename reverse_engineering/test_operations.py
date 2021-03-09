@@ -103,27 +103,10 @@ def list_objects():
         oci_config["config"], service_endpoint=service_endpoint
     )
     r = cli.list_objects(namespace_name=namespace_name, bucket_name="bucket_name")
-    # {"objects":[{"name":"folder/file.txt"}]}
 
     print(r.request_id)
     print(r.headers)
     print(r.data)
-    # {
-    #     "next_start_with": null,
-    #     "objects": [
-    #         {
-    #             "archival_state": null,
-    #             "etag": null,
-    #             "md5": null,
-    #             "name": "folder/file.txt",
-    #             "size": null,
-    #             "storage_tier": null,
-    #             "time_created": null,
-    #             "time_modified": null,
-    #         }
-    #     ],
-    #     "prefixes": null,
-    # }
     print(r.status)
 
 
