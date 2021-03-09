@@ -47,7 +47,7 @@ def post_bucket(namespace_name):
     )
 
     if not success:
-        bucket_name = request.data["name"]
+        bucket_name = json.loads(request.data)["name"]
         return Response(
             status=409,
             response=json.dumps(

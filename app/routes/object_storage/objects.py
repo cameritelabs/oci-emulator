@@ -1,6 +1,7 @@
 import logging
 import json
 import uuid
+import os
 
 from flask import Blueprint
 from flask import request, Response
@@ -148,7 +149,26 @@ def delete_object(namespace_name, bucket_name, subpath):
             },
         )
 
-    if False:
+    bucket = get_bucket(namespace=namespace_name, bucket_name=bucket_name)
+    if bucket is None:
+        return Response(
+            status=404,
+            content_type="application/json",
+            response=json.dumps(
+                {
+                    "code": "BucketNotFound",
+                    "message": f"Either the bucket named '{bucket_name}' does not exist in the namespace '{namespace_name}' or you are not authorized to access it",
+                }
+            ),
+            headers={
+                "opc-request-id": request.headers["Opc-Request-Id"]
+                if "Opc-Request-Id" in request.headers
+                else ""
+            },
+        )
+
+    _object = get_object(bucket=bucket, object_name=subpath)
+    if _object is None:
         return Response(
             status=404,
             content_type="application/json",
@@ -164,6 +184,9 @@ def delete_object(namespace_name, bucket_name, subpath):
                 else ""
             },
         )
+
+    bucket["_objects"].remove(_object)
+    os.remove(f"tmp/{_object['ref_obj']}")
 
     return Response(
         status=204,
