@@ -170,7 +170,7 @@ def delete_buckets(namespace_name, bucket_name):
             )
 
     return Response(
-        status=200,
+        status=204,
         content_type="application/json",
         headers={
             "opc-request-id": request.headers["Opc-Request-Id"]

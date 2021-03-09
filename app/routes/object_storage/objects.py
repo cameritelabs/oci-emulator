@@ -10,7 +10,41 @@ objects = Blueprint("objects", __name__)
 
 @objects.route("/n/<namespace_name>/b/<bucket_name>/o/<path:subpath>", methods=["PUT"])
 def put_object(namespace_name, bucket_name, subpath):
-    print(subpath)
+    # TODO: this could probably become a middleware
+    if "Authorization" not in request.headers:
+        return Response(
+            status=404,
+            response=json.dumps(
+                {
+                    "code": "NotAuthorizedOrNotFound",
+                    "message": "Authorization failed or requested resource not found.",
+                }
+            ),
+            content_type="application/json",
+            headers={
+                "opc-request-id": request.headers["Opc-Request-Id"]
+                if "Opc-Request-Id" in request.headers
+                else ""
+            },
+        )
+
+    if False:
+        return Response(
+            status=404,
+            content_type="application/json",
+            response=json.dumps(
+                {
+                    "code": "BucketNotFound",
+                    "message": f"Either the bucket named '{bucket_name}' does not exist in the namespace '{namespace_name}' or you are not authorized to access it",
+                }
+            ),
+            headers={
+                "opc-request-id": request.headers["Opc-Request-Id"]
+                if "Opc-Request-Id" in request.headers
+                else ""
+            },
+        )
+
     return ""
 
 
