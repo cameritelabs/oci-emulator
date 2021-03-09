@@ -1,6 +1,6 @@
 branches:
   only:
-    - master
+    - main
 
 dist: trusty
 language: python
