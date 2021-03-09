@@ -1,3 +1,7 @@
+#tmp folder
+
+tmp/*
+
 # IDE
 .vscode
 

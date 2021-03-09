@@ -9,10 +9,14 @@ logging.basicConfig(
 
 from app.routes.sample import sample
 from app.routes.object_storage.bucket_operations import bucket_operations
+from app.routes.object_storage.objects import objects
+from app.routes.middleware import middleware
 
 app = Flask(__name__)
 app.register_blueprint(sample)
 app.register_blueprint(bucket_operations)
+app.register_blueprint(objects)
+app.wsgi_app = middleware(app.wsgi_app)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=12000, debug=True)

@@ -11,6 +11,13 @@ def create_bucket(namespace, userId, bucket):
         random.choices(string.ascii_lowercase + string.digits, k=60)
     )
 
+    for existing_bucket in buckets:
+        if (
+            existing_bucket["namespace"] == namespace
+            and existing_bucket["name"] == bucket["name"]
+        ):
+            return False, "already_exists"
+
     new_bucket = {
         "approximateCount": 0,
         "approximateSize": 0,
@@ -36,10 +43,11 @@ def create_bucket(namespace, userId, bucket):
             "%Y-%m-%dT%H:%M:%S.%f+00:00"
         ),
         "versioning": "Disabled",
+        "_objects": [],
     }
 
     buckets.append(new_bucket)
-    return new_bucket
+    return True, new_bucket
 
 
 def list_buckets(namespace, compartment_id):
@@ -49,3 +57,30 @@ def list_buckets(namespace, compartment_id):
         if bucket["compartmentId"] == compartment_id
         and bucket["namespace"] == namespace
     ]
+
+
+def get_bucket(namespace, bucket_name):
+    for bucket in buckets:
+        if bucket["namespace"] == namespace and bucket["name"] == bucket_name:
+            return bucket
+    return None
+
+
+def remove_bucket(namespace, bucket_name):
+    for bucket in buckets:
+        if bucket["namespace"] == namespace and bucket["name"] == bucket_name:
+
+            if len(bucket["_objects"]) > 0:
+                return False, "has_objects"
+
+            buckets.remove(bucket)
+            return True, None
+
+    return False, "not_found"
+
+
+def get_object(bucket, object_name):
+    for _object in bucket["_objects"]:
+        if _object["object_name"] == object_name:
+            return _object
+    return None
