@@ -10,7 +10,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
 
@@ -30,3 +30,18 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
+    - name: Coveralls
+      uses: AndreMiras/coveralls-python-action@v20201129
+      with:
+        parallel: true
+        flag-name: Test with pytest
+  coveralls_finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Python
+      uses: AndreMiras/coveralls-python-action@v20201129
+      with:
+       github-token: $COVERALLS_REPO_TOKEN
+       
+
