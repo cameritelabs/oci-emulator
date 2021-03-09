@@ -13,7 +13,7 @@ def create_bucket(namespace, userId, bucket):
 
     for existing_bucket in buckets:
         if (
-            bucket["namespace"] == namespace
+            existing_bucket["namespace"] == namespace
             and existing_bucket["name"] == bucket["name"]
         ):
             return False, "already_exists"
