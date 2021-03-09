@@ -26,8 +26,10 @@ jobs:
         python -m pip install -r requirements.txt
     - name: Black Format Checking
       run: |
-        echo $$COVERALLS_REPO_TOKEN
+        echo $COVERALLS_REPO_TOKEN
         black . --check --diff
+      env:
+        COVERALLS_REPO_TOKEN: secrets.COVERALLS_REPO_TOKEN
     - name: Test with pytest
       run: |
         pytest
@@ -43,6 +45,6 @@ jobs:
     - name: Coveralls Python
       uses: AndreMiras/coveralls-python-action@v20201129
       with:
-       github-token: $COVERALLS_REPO_TOKEN
+       github-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
        
 
