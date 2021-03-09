@@ -30,8 +30,9 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-    - name: Coveralls GitHub
-      uses: coverallsapp/github-action@v1.1.2
+    - name: Coveralls Python
+      uses: AndreMiras/coveralls-python-action@v20201129
       with:
        github-token: zmYUNFYTsvxkVGTF4iCO1KGQLbsVWwy2e
+       
 
