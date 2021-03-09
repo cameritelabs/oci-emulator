@@ -75,7 +75,7 @@ class BucketRoutes(unittest.TestCase):
         r = cli.delete_bucket(
             namespace_name="namespace_name", bucket_name="bucket_name"
         )
-        self.assertEqual(r.status, 200)
+        self.assertEqual(r.status, 204)
         r = cli.list_buckets(
             namespace_name="namespace_name", compartment_id="compartment_id"
         )
