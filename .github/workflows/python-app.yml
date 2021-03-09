@@ -46,10 +46,8 @@ jobs:
       - name: Build and push Docker images
         uses: docker/build-push-action@v1
         with:
-          # Username used to log against the Docker registry
-          username: devcamerite
-          # Password or personal access token used to log against the Docker registry
-          password: zM2qwSH5k7ZJv5NN
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cameritelabs/oci-emulator
           tags: latest
         
