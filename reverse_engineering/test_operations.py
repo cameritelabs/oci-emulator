@@ -143,7 +143,7 @@ def delete_object():
     print(r.status)
 
 
-# create_bucket()
+create_bucket()
 # list_buckets()
 # delete_bucket()
 put_object()

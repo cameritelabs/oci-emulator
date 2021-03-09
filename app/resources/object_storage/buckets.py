@@ -59,6 +59,13 @@ def list_buckets(namespace, compartment_id):
     ]
 
 
+def get_bucket(namespace, bucket_name):
+    for bucket in buckets:
+        if bucket["namespace"] == namespace and bucket["name"] == bucket_name:
+            return bucket
+    return None
+
+
 def remove_bucket(namespace, bucket_name):
     for bucket in buckets:
         if bucket["namespace"] == namespace and bucket["name"] == bucket_name:

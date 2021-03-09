@@ -1,8 +1,11 @@
 import logging
 import json
+import uuid
 
 from flask import Blueprint
 from flask import request, Response
+
+from app.resources.object_storage.buckets import get_bucket
 
 logger = logging.getLogger(__name__)
 objects = Blueprint("objects", __name__)
@@ -28,7 +31,18 @@ def put_object(namespace_name, bucket_name, subpath):
             },
         )
 
-    if False:
+    cache_control = None
+    content_type = None
+
+    if "Cache-Control" in request.headers:
+        cache_control = request.headers["Cache-Control"]
+
+    if "Content-Type" in request.headers:
+        content_type = request.headers["Content-Type"]
+
+    bucket = get_bucket(namespace=namespace_name, bucket_name=bucket_name)
+
+    if bucket is None:
         return Response(
             status=404,
             content_type="application/json",
@@ -44,6 +58,19 @@ def put_object(namespace_name, bucket_name, subpath):
                 else ""
             },
         )
+
+    ref_obj = str(uuid.uuid4())
+    with open(ref_obj, "wb") as file:
+        file.write(request.data)
+
+    bucket["_objects"].append(
+        {
+            "cache_control": cache_control,
+            "content_type": content_type,
+            "object_name": subpath,
+            "ref_obj": ref_obj,
+        }
+    )
 
     return ""
 
