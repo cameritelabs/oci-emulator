@@ -14,24 +14,6 @@ objects = Blueprint("objects", __name__)
 
 @objects.route("/n/<namespace_name>/b/<bucket_name>/o/<path:subpath>", methods=["PUT"])
 def put_object(namespace_name, bucket_name, subpath):
-    # TODO: this could probably become a middleware
-    if "Authorization" not in request.headers:
-        return Response(
-            status=404,
-            response=json.dumps(
-                {
-                    "code": "NotAuthorizedOrNotFound",
-                    "message": "Authorization failed or requested resource not found.",
-                }
-            ),
-            content_type="application/json",
-            headers={
-                "opc-request-id": request.headers["Opc-Request-Id"]
-                if "Opc-Request-Id" in request.headers
-                else ""
-            },
-        )
-
     cache_control = None
     content_type = None
 
@@ -78,23 +60,6 @@ def put_object(namespace_name, bucket_name, subpath):
 
 @objects.route("/n/<namespace_name>/b/<bucket_name>/o", methods=["GET"])
 def get_objects(namespace_name, bucket_name):
-    # TODO: this could probably become a middleware
-    if "Authorization" not in request.headers:
-        return Response(
-            status=404,
-            response=json.dumps(
-                {
-                    "code": "NotAuthorizedOrNotFound",
-                    "message": "Authorization failed or requested resource not found.",
-                }
-            ),
-            content_type="application/json",
-            headers={
-                "opc-request-id": request.headers["Opc-Request-Id"]
-                if "Opc-Request-Id" in request.headers
-                else ""
-            },
-        )
 
     bucket = get_bucket(namespace=namespace_name, bucket_name=bucket_name)
     if bucket is None:
@@ -179,24 +144,6 @@ def get_object_route(namespace_name, bucket_name, subpath):
     "/n/<namespace_name>/b/<bucket_name>/o/<path:subpath>", methods=["DELETE"]
 )
 def delete_object(namespace_name, bucket_name, subpath):
-
-    # TODO: this could probably become a middleware
-    if "Authorization" not in request.headers:
-        return Response(
-            status=404,
-            response=json.dumps(
-                {
-                    "code": "NotAuthorizedOrNotFound",
-                    "message": "Authorization failed or requested resource not found.",
-                }
-            ),
-            content_type="application/json",
-            headers={
-                "opc-request-id": request.headers["Opc-Request-Id"]
-                if "Opc-Request-Id" in request.headers
-                else ""
-            },
-        )
 
     bucket = get_bucket(namespace=namespace_name, bucket_name=bucket_name)
     if bucket is None:

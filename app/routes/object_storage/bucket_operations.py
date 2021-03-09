@@ -17,33 +17,10 @@ bucket_operations = Blueprint("bucket_operations", __name__)
 @bucket_operations.route("/n/<namespace_name>/b", methods=["POST"])
 def post_bucket(namespace_name):
 
-    # TODO: this could probably become a middleware
-    if "Authorization" not in request.headers:
-        return Response(
-            status=404,
-            response=json.dumps(
-                {
-                    "code": "NotAuthorizedOrNotFound",
-                    "message": "Authorization failed or requested resource not found.",
-                }
-            ),
-            content_type="application/json",
-            headers={
-                "opc-request-id": request.headers["Opc-Request-Id"]
-                if "Opc-Request-Id" in request.headers
-                else ""
-            },
-        )
-    tenancy, user, fingerprint = None, None, None
-    headers = request.headers["Authorization"].split(",")
-
-    for header in headers:
-        if "keyId=" in header:
-            header = header.replace('keyId="', "").replace('"', "")
-            tenancy, user, fingerprint = header.split("/")
-
     success, response = create_bucket(
-        namespace=namespace_name, userId=user, bucket=json.loads(request.data)
+        namespace=namespace_name,
+        userId=request.environ["credentials"]["user"],
+        bucket=json.loads(request.data),
     )
 
     if not success:
@@ -79,24 +56,6 @@ def post_bucket(namespace_name):
 @bucket_operations.route("/n/<namespace_name>/b", methods=["GET"])
 def get_buckets(namespace_name):
 
-    # TODO: this could probably become a middleware
-    if "Authorization" not in request.headers:
-        return Response(
-            status=404,
-            response=json.dumps(
-                {
-                    "code": "NotAuthorizedOrNotFound",
-                    "message": "Authorization failed or requested resource not found.",
-                }
-            ),
-            content_type="application/json",
-            headers={
-                "opc-request-id": request.headers["Opc-Request-Id"]
-                if "Opc-Request-Id" in request.headers
-                else ""
-            },
-        )
-
     return Response(
         status=200,
         response=json.dumps(
@@ -115,24 +74,6 @@ def get_buckets(namespace_name):
 
 @bucket_operations.route("/n/<namespace_name>/b/<bucket_name>", methods=["DELETE"])
 def delete_buckets(namespace_name, bucket_name):
-
-    # TODO: this could probably become a middleware
-    if "Authorization" not in request.headers:
-        return Response(
-            status=404,
-            response=json.dumps(
-                {
-                    "code": "NotAuthorizedOrNotFound",
-                    "message": "Authorization failed or requested resource not found.",
-                }
-            ),
-            content_type="application/json",
-            headers={
-                "opc-request-id": request.headers["Opc-Request-Id"]
-                if "Opc-Request-Id" in request.headers
-                else ""
-            },
-        )
 
     success, err = remove_bucket(namespace=namespace_name, bucket_name=bucket_name)
     if not success:

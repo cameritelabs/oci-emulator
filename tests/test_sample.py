@@ -28,7 +28,7 @@ class SampleRoutes(unittest.TestCase):
 
     def test_sample_route(self):
         r = requests.get("http://localhost:12000")
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 404)
 
     def tearDown(self):
         self.server.shutdown()
