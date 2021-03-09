@@ -60,7 +60,7 @@ def put_object(namespace_name, bucket_name, subpath):
         )
 
     ref_obj = str(uuid.uuid4())
-    with open(ref_obj, "wb") as file:
+    with open(f"tmp/{ref_obj}", "wb") as file:
         file.write(request.data)
 
     bucket["_objects"].append(
