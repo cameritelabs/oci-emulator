@@ -36,6 +36,9 @@ jobs:
         parallel: true
         flag-name: Test with pytest
         github-token: zmYUNFYTsvxkVGTF4iCO1KGQLbsVWwy2e
+    - name: Codecov
+      uses: codecov/codecov-action@v1.2.2
+
        
   build_push_docker:
     needs: test
