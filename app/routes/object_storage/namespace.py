@@ -15,7 +15,7 @@ def get_namespace():
     return Response(
         status=200,
         content_type="application/json",
-        response="namespace_name",
+        response=json.dumps("namespace_name"),
         headers={
             "opc-request-id": request.headers["Opc-Request-Id"]
             if "Opc-Request-Id" in request.headers
