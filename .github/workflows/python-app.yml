@@ -30,12 +30,9 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-    - name: Coveralls
-      uses: AndreMiras/coveralls-python-action@v20201129
-      with:
-        parallel: true
-        flag-name: Test with pytest
-        github-token: zmYUNFYTsvxkVGTF4iCO1KGQLbsVWwy2e
+    - name: Codecov
+      uses: codecov/codecov-action@v1.2.2
+
        
   build_push_docker:
     needs: test

@@ -2,7 +2,7 @@
 
 <img src="https://img.shields.io/badge/python-3.8.8-blue"> <img src="https://img.shields.io/github/license/cameritelabs/oci-emulator">
 ![Python application](https://github.com/cameritelabs/oci-emulator/workflows/Python%20application/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/cameritelabs/oci-emulator/badge.svg?branch=main)](https://coveralls.io/github/cameritelabs/oci-emulator?branch=main)
+[![codecov](https://codecov.io/gh/cameritelabs/oci-emulator/branch/main/graph/badge.svg?token=5C8SX1Q6P9)](https://codecov.io/gh/cameritelabs/oci-emulator)
 
 oci-emulator is a mock of Oracle Cloud Infrastructure API using Flask. You can use it to test your application that integrates with OCI.
 
