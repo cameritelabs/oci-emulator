@@ -1,7 +1,12 @@
 from enum import Enum, auto
 
 
-class LifecycleState(Enum):
+class AutoName(Enum):
+    def _generate_next_value_(name, start, count, last_values):
+        return name
+
+
+class LifecycleState(AutoName):
     MOVING = auto()
     PROVISIONING = auto()
     RUNNING = auto()

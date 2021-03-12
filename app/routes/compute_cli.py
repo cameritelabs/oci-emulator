@@ -1,10 +1,14 @@
 import logging
+import json
 
-from datetime import datetime
+from flask import Blueprint, request, Response
 
-from flask import Blueprint, request, Response, jsonify
-
-from app.resources.compute import create_instance, get_instances
+from app.resources.compute import (
+    create_instance,
+    get_instances,
+    find_instance,
+    terminate_instance,
+)
 
 logger = logging.getLogger(__name__)
 compute = Blueprint("compute", __name__)
@@ -34,9 +38,33 @@ def launch_instance():
         displayName=data["displayName"] if "displayName" in data else None,
     )
 
-    return instance
+    return Response(
+        status=200, content_type="application/json", response=json.dumps(instance)
+    )
 
 
 @compute.route("/instances", methods=["GET"])
 def list_instances():
-    return jsonify(get_instances())
+    return Response(
+        status=200,
+        content_type="application/json",
+        response=json.dumps(get_instances()),
+    )
+
+
+@compute.route("/instances/<instance_ocid>", methods=["GET"])
+def get_instance(instance_ocid):
+    return Response(
+        status=200,
+        content_type="application/json",
+        response=json.dumps(find_instance(instance_ocid)),
+    )
+
+
+@compute.route("/instances/<instance_ocid>", methods=["DELETE"])
+def delete_instance(instance_ocid):
+    return Response(
+        status=200,
+        content_type="application/json",
+        response=json.dumps(terminate_instance(instance_ocid)),
+    )
