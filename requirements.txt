@@ -1,0 +1,4 @@
+Flask==1.1.2
+requests==2.25.1
+oci==2.32.1
+python-dotenv==0.15.0
