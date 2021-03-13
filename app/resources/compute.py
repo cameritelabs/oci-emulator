@@ -7,25 +7,16 @@ from threading import Thread
 from functools import partial
 from typing import List, Optional
 
+from app.enums.compute.instance_action import InstanceAction
 from app.enums.compute.lifecycle_state import LifecycleState
 
 instances = {}
 
 
-def _terminate_instance(instance) -> None:
-    status_order = [LifecycleState.TERMINATING.value, LifecycleState.TERMINATED.value]
-
+def _change_instance_status(instance: dict, status_order: List[LifecycleState]) -> None:
     for status in status_order:
         sleep(1)  # Maybe this sleep time should be configurable
-        instance["lifecycleState"] = status
-
-
-def setup_instance(instance) -> None:
-    status_order = [LifecycleState.PROVISIONING.value, LifecycleState.RUNNING.value]
-
-    for status in status_order:
-        sleep(1)  # Maybe this sleep time should be configurable
-        instance["lifecycleState"] = status
+        instance["lifecycleState"] = status.value
 
 
 def create_instance(
@@ -39,8 +30,8 @@ def create_instance(
     utc_datetime = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     display_name = f"instance_{instance_id}"
 
-    if kwargs.get("display_name"):
-        display_name = kwargs.get("display_name")
+    if (name := kwargs.get("display_name")) :
+        display_name = name
 
     instance = {
         "agentConfig": {
@@ -107,7 +98,11 @@ def create_instance(
     }
 
     instances[instance_ocid] = instance
-    _setup_instance = partial(setup_instance, instance)
+    _setup_instance = partial(
+        _change_instance_status,
+        instance,
+        [LifecycleState.PROVISIONING, LifecycleState.RUNNING],
+    )
     Thread(target=_setup_instance).start()
 
     return instance
@@ -120,9 +115,38 @@ def find_instance(instance_ocid: str) -> Optional[dict]:
     return None
 
 
-def get_instances() -> List[dict]:
-    return list(instances.values())
+def get_instances(params: Optional[dict] = None) -> List[dict]:
+    instances_to_return = []
+
+    for instance in instances.values():
+        should_add = True
+
+        if params:
+            for param in params.keys():
+                if params[param] and instance[param] not in params[param]:
+                    should_add = False
+                    break
+
+        if should_add:
+            instances_to_return.append(instance)
+
+    return instances_to_return
 
 
 def terminate_instance(instance_ocid: str) -> None:
-    del instances[instance_ocid]
+    instance = instances[instance_ocid]
+    _change_instance_status(
+        instance, [LifecycleState.TERMINATING, LifecycleState.TERMINATED]
+    )
+
+    while True:
+        if instance["lifecycleState"] == LifecycleState.TERMINATED.value:
+            del instances[instance_ocid]
+            break
+
+
+def instance_action(instance_ocid: str, action: InstanceAction) -> None:
+    _perform_action = partial(
+        _change_instance_status, instances[instance_ocid], action.value
+    )
+    Thread(target=_perform_action).start()

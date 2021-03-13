@@ -1,24 +1,9 @@
 import unittest
-from threading import Thread
 
 import requests
-from werkzeug.serving import make_server
 
 from oci_emulator import app
-
-
-class ServerThread(Thread):
-    def __init__(self, app):
-        Thread.__init__(self)
-        self.srv = make_server("127.0.0.1", 12000, app)
-        self.ctx = app.app_context()
-        self.ctx.push()
-
-    def run(self):
-        self.srv.serve_forever()
-
-    def shutdown(self):
-        self.srv.shutdown()
+from . import ServerThread
 
 
 class SampleRoutes(unittest.TestCase):
