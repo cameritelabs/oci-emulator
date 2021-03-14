@@ -1,4 +1,4 @@
-FROM python:3.8.8-buster
+FROM python:3.9.2-buster
 
 COPY . /root/oci-emulator
 
