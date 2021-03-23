@@ -15,8 +15,8 @@ oci_config = {
     }
 }
 
-# service_endpoint = None  # Use it to test on a real environment
-service_endpoint = "http://localhost:12000"  # Use it to test on mock environment
+service_endpoint = None  # Use it to test on a real environment
+# service_endpoint = "http://localhost:12000"  # Use it to test on mock environment
 compartment_id = os.getenv("COMPARTMENT_ID")
 
 cli = oci.object_storage.ObjectStorageClient(
@@ -26,12 +26,105 @@ r = cli.get_namespace()
 namespace_name = r.data
 
 
+def monitoring():
+    cli = oci.monitoring.MonitoringClient(
+        oci_config["config"], service_endpoint=service_endpoint
+    )
+
+    # list_metrics_details = oci.monitoring.models.ListMetricsDetails(
+    #     # name="resourceDisplayName"
+    #     namespace="oci_objectstorage",
+    #     dimension_filters={"resourceDisplayName": "architectureevents"},
+    # )
+
+    # b = cli.list_metrics(
+    #     compartment_id=compartment_id, list_metrics_details=list_metrics_details
+    # )
+
+    summarize_metrics_data_details = oci.monitoring.models.SummarizeMetricsDataDetails(
+        namespace="oci_objectstorage", query="StoredBytes[1h].mean()"
+    )
+
+    b = cli.summarize_metrics_data(
+        compartment_id=compartment_id,
+        summarize_metrics_data_details=summarize_metrics_data_details,
+    )
+    # cli.summarize_metrics_data(compartment_id=compartment_id, )
+    # print(b.request_id)
+    # print(b.headers)
+    # print(b.data)
+    # print(b.status)
+
+    for item in b.data:
+        print(
+            item.dimensions["resourceDisplayName"],
+            int(item.aggregated_datapoints[-1].value),
+            from_byte_to_x(int(item.aggregated_datapoints[-1].value)),
+        )
+
+    cli = oci.object_storage.ObjectStorageClient(
+        oci_config["config"], service_endpoint=service_endpoint
+    )
+
+    b = cli.get_bucket(
+        namespace_name=namespace_name,
+        bucket_name="architectureevents",
+        fields=["approximateCount", "approximateSize"],
+    )
+
+    # print(b.request_id)
+    # print(b.headers)
+    print(b.data.approximate_size)
+    # print(b.status)
+
+
+def from_byte_to_x(value):
+    if value < 1024:
+        return f"{value}B"
+
+    value = value / 1024
+
+    if value < 1024:
+        return f"{value}KB"
+
+    value = value / 1024
+
+    if value < 1024:
+        return f"{value}MB"
+
+    value = value / 1024
+
+    if value < 1024:
+        return f"{value}GB"
+
+    value = value / 1024
+
+    if value < 1024:
+        return f"{value}TB"
+
+    value = value / 1024
+
+    if value < 1024:
+        return f"{value}PB"
+
+    value = value / 1024
+
+
 def list_buckets():
+
     cli = oci.object_storage.ObjectStorageClient(
         oci_config["config"], service_endpoint=service_endpoint
     )
 
     b = cli.list_buckets(namespace_name=namespace_name, compartment_id=compartment_id)
+
+    b = cli.get_bucket(
+        namespace_name=namespace_name,
+        bucket_name="architectureevents",
+        fields=["approximateCount", "approximateSize"],
+    )
+
+    # b = cli.head_bucket(namespace_name=namespace_name, bucket_name="architectureevents")
 
     print(b.request_id)
     print(b.headers)
@@ -207,6 +300,8 @@ def delete_table():
     print(r.data)
     print(r.status)
 
+
+a = monitoring()
 
 # create_bucket()
 # put_object()

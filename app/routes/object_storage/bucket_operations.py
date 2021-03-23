@@ -8,6 +8,7 @@ from app.resources.object_storage.buckets import (
     create_bucket,
     list_buckets,
     remove_bucket,
+    get_bucket,
 )
 
 logger = logging.getLogger(__name__)
@@ -63,6 +64,23 @@ def get_buckets(namespace_name):
                 namespace=namespace_name, compartment_id=request.args["compartmentId"]
             )
         ),
+        content_type="application/json",
+        headers={
+            "opc-request-id": request.headers["Opc-Request-Id"]
+            if "Opc-Request-Id" in request.headers
+            else ""
+        },
+    )
+
+
+@bucket_operations.route("/n/<namespace_name>/b/<bucket_name>", methods=["GET"])
+def get_bucket_route(namespace_name, bucket_name):
+
+    bucket = get_bucket(namespace_name, bucket_name)
+
+    return Response(
+        status=200,
+        response=json.dumps(bucket),
         content_type="application/json",
         headers={
             "opc-request-id": request.headers["Opc-Request-Id"]
