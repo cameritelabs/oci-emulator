@@ -34,7 +34,7 @@ def post_table(date):
 @tables.route("/<date>/tables/<table_name>", methods=["DELETE"])
 def delete_table(date, table_name):
 
-    table = find_table(table_name, request.args["compartmentId"])
+    table = find_table(table_name, request.get_data("compartmentId"))
     remove_table(table)
 
     return Response(
@@ -51,7 +51,7 @@ def delete_table(date, table_name):
 @tables.route("/<date>/tables/<table_name>", methods=["GET"])
 def get_table(date, table_name):
 
-    table = find_table(table_name, request.args["compartmentId"])
+    table = find_table(table_name, request.get_data("compartmentId"))
     # The idea here is to maybe create a object will all this properties
     return Response(
         status=202,
@@ -85,7 +85,7 @@ def put_row(date, table_name):
 
     data = json.loads(request.data)
 
-    table = find_table(table_name, data["compartmentId"])
+    table = find_table(table_name, data.get("compartmentId", ""))
     table["_rows"].append(data["value"])
 
     return Response(
@@ -111,7 +111,7 @@ def query(date):
             table_name = stmt[i + 1]
             break
 
-    table = find_table(table_name, data["compartmentId"])
+    table = find_table(table_name, data.get("compartmentId", ""))
     rows = table["_rows"]
 
     return Response(
@@ -129,7 +129,7 @@ def query(date):
 @tables.route("/<date>/tables/<table_name>/rows", methods=["DELETE"])
 def delete_row(date, table_name):
 
-    table = find_table(table_name, request.args["compartmentId"])
+    table = find_table(table_name, request.get_data("compartmentId"))
 
     keys = request.args.getlist("key")
     k = {}
@@ -161,7 +161,7 @@ def delete_row(date, table_name):
 @tables.route("/<date>/tables/<table_name>/rows", methods=["GET"])
 def get_row(date, table_name):
 
-    table = find_table(table_name, request.args["compartmentId"])
+    table = find_table(table_name, request.get_data("compartmentId"))
     rows = table["_rows"]
 
     keys = request.args.getlist("key")

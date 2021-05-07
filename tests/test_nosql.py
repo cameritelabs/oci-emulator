@@ -15,7 +15,7 @@ class NosqlRoutes(unittest.TestCase):
         self.server.start()
         self.oci_config = get_oci_config()
         self.table_name = "nosql_test"
-        self.ddl_statement = f"""CREATE TABLE {self.table_name} ( stream_name string, start number, finish number, PRIMARY KEY ( SHARD ( stream_name ), start ) )"""
+        self.ddl_statement = f"""CREATE TABLE {self.table_name} (first string, second number, third boolean, PRIMARY KEY (first))"""
 
         table_limits = TableLimits(
             max_read_units=1, max_write_units=1, max_storage_in_g_bs=1
@@ -35,11 +35,47 @@ class NosqlRoutes(unittest.TestCase):
 
     def test_get_table(self):
         response = self.nosql_cli.get_table(
-            table_name_or_id=self.table_name,
-            compartment_id=self.oci_config["compartment_id"],
+            table_name_or_id=self.oci_config["compartment_id"]
         )
         self.assertEquals(response.data.name, self.table_name)
         self.assertEquals(response.data.ddl_statement, self.ddl_statement)
+
+    def test_get_empty_row(self):
+        nosql_row = UpdateRowDetails()
+        nosql_row.value = {
+            "first": "not-value",
+            "second": 1,
+            "third": True,
+        }
+        self.nosql_cli.update_row(
+            table_name_or_id=self.oci_config["compartment_id"],
+            update_row_details=nosql_row,
+        )
+
+        response = self.nosql_cli.get_row(
+            table_name_or_id=self.table_name,
+            key=["first:value", "second:no-value"],
+            compartment_id=self.oci_config["compartment_id"],
+        )
+        self.assertEquals(response.data.value, None)
+
+    def test_get_row_not_key(self):
+        nosql_row = UpdateRowDetails()
+        nosql_row.value = {
+            "first": "not-value",
+            "second": 1,
+            "third": True,
+        }
+        nosql_row.compartment_id = self.oci_config["compartment_id"]
+        self.nosql_cli.update_row(self.table_name, nosql_row)
+
+        response = self.nosql_cli.get_row(
+            table_name_or_id=self.oci_config["compartment_id"],
+            key=[
+                "dump:value",
+            ],
+        )
+        self.assertEquals(response.data.value, None)
 
     def test_get_row(self):
         nosql_row = UpdateRowDetails()
