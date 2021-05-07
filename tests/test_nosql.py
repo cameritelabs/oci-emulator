@@ -53,9 +53,8 @@ class NosqlRoutes(unittest.TestCase):
         )
 
         response = self.nosql_cli.get_row(
-            table_name_or_id=self.table_name,
+            table_name_or_id=self.oci_config["compartment_id"],
             key=["first:value", "second:no-value"],
-            compartment_id=self.oci_config["compartment_id"],
         )
         self.assertEquals(response.data.value, None)
 
@@ -120,7 +119,6 @@ class NosqlRoutes(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.nosql_cli.delete_table(
-            table_name_or_id=self.table_name,
-            compartment_id=self.oci_config["compartment_id"],
+            table_name_or_id=self.oci_config["compartment_id"],
         )
         self.server.shutdown()
