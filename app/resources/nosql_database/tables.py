@@ -16,3 +16,18 @@ def find_table(table_name, compartment_id):
 
 def remove_table(table):
     tables.remove(table)
+
+
+def find_row(rows, keys):
+    for row in rows:
+        equal = True
+        for key in keys:
+            if type(keys[key]) != type(row[key]):
+                keys[key] = type(row[key])(keys[key])
+            if row[key] != keys[key]:
+                equal = False
+                break
+
+        if equal:
+            return row
+    return None

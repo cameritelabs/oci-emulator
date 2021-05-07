@@ -5,7 +5,6 @@ const user = process.env.OCI_USER;
 const fingerprint = process.env.OCI_FINGERPRINT;
 const tenancy = process.env.OCI_TENANCY;
 const region = process.env.OCI_REGION;
-const passphrase = process.env.OCI_PASS_PHRASE;
 const compartmentId = process.env.COMPARTMENT_ID;
 
 
