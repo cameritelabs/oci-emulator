@@ -11,7 +11,6 @@ oci_config = {
         "tenancy": os.getenv("OCI_TENANCY"),
         "region": os.getenv("OCI_REGION"),
         "key_file": os.getenv("OCI_KEY_FILE"),
-        "pass_phrase": os.getenv("OCI_PASS_PHRASE"),
     }
 }
 

@@ -18,8 +18,7 @@ def create_instance(
         display_name=instance_name,
     )
     response: Response = compute_client_composite_op.launch_instance_and_wait_for_state(
-        launch_instance_details,
-        wait_for_states=[Instance.LIFECYCLE_STATE_RUNNING],
+        launch_instance_details, wait_for_states=[Instance.LIFECYCLE_STATE_RUNNING]
     )
 
     return response.data
