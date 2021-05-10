@@ -32,6 +32,11 @@ class NosqlRoutes(unittest.TestCase):
             self.oci_config["config"], service_endpoint="http://localhost:12000"
         )
         self.nosql_cli.create_table(self.nosql_details)
+        response = self.nosql_cli.get_table(
+            table_name_or_id=self.table_name,
+            compartment_id=self.oci_config["compartment_id"],
+        )
+        self.table_id = response.data.id
 
     def test_get_table(self):
         response = self.nosql_cli.get_table(
@@ -66,12 +71,6 @@ class NosqlRoutes(unittest.TestCase):
         self.assertEquals(response.data.value, None)
 
     def test_get_row_not_key(self):
-        response = self.nosql_cli.get_table(
-            table_name_or_id=self.table_name,
-            compartment_id=self.oci_config["compartment_id"],
-        )
-        table_id = response.data.id
-
         nosql_row = UpdateRowDetails()
         nosql_row.value = {
             "first": "not-value",
@@ -80,7 +79,7 @@ class NosqlRoutes(unittest.TestCase):
         }
 
         self.nosql_cli.update_row(
-            table_name_or_id=table_id,
+            table_name_or_id=self.table_id,
             update_row_details=nosql_row,
         )
 
@@ -93,13 +92,7 @@ class NosqlRoutes(unittest.TestCase):
         )
         self.assertEquals(response.data.value, None)
 
-    def test_get_row(self):
-        response = self.nosql_cli.get_table(
-            table_name_or_id=self.table_name,
-            compartment_id=self.oci_config["compartment_id"],
-        )
-        table_id = response.data.id
-
+    def test_create_row_using_name_compartment(self):
         nosql_row = UpdateRowDetails()
         nosql_row.value = {
             "first": "not-value",
@@ -111,31 +104,14 @@ class NosqlRoutes(unittest.TestCase):
             table_name_or_id=self.table_name, update_row_details=nosql_row
         )
 
-        nosql_row.value = {
-            "first": "value",
-            "second": 0,
-            "third": True,
-        }
-
-        self.nosql_cli.update_row(
-            table_name_or_id=table_id, update_row_details=nosql_row
-        )
-
         response = self.nosql_cli.get_row(
-            table_name_or_id=response.data.id,
-            key=["first:value", "second:0"],
+            table_name_or_id=self.table_name,
+            key=["first:not-value", "second:1"],
             compartment_id=self.oci_config["compartment_id"],
         )
-
-        self.assertEquals(response.data.value["first"], "value")
-        self.assertEquals(response.data.value["second"], 0)
+        self.assertEquals(response.data.value["first"], "not-value")
+        self.assertEquals(response.data.value["second"], 1)
         self.assertEquals(response.data.value["third"], True)
-
-        self.nosql_cli.delete_row(
-            table_name_or_id=table_id,
-            key=["first:value", "second:0"],
-            compartment_id=self.oci_config["compartment_id"],
-        )
 
         query = f"SELECT * FROM {self.table_name} WHERE third = true"
         details = QueryDetails(
@@ -143,6 +119,38 @@ class NosqlRoutes(unittest.TestCase):
         )
         response = self.nosql_cli.query(details)
         self.assertEquals(len(response.data.items), 1)
+
+    def test_create_row_using_id(self):
+        nosql_row = UpdateRowDetails()
+        nosql_row.value = {
+            "first": "value",
+            "second": 0,
+            "third": True,
+        }
+        self.nosql_cli.update_row(
+            table_name_or_id=self.table_id, update_row_details=nosql_row
+        )
+
+        response = self.nosql_cli.get_row(
+            table_name_or_id=self.table_id,
+            key=["first:value", "second:0"],
+        )
+
+        self.assertEquals(response.data.value["first"], "value")
+        self.assertEquals(response.data.value["second"], 0)
+        self.assertEquals(response.data.value["third"], True)
+
+        query = f"SELECT * FROM {self.table_name} WHERE third = true"
+        details = QueryDetails(
+            compartment_id=self.oci_config["compartment_id"], statement=query
+        )
+        response = self.nosql_cli.query(details)
+        self.assertEquals(len(response.data.items), 1)
+
+        self.nosql_cli.delete_row(
+            table_name_or_id=self.table_id,
+            key=["first:value", "second:0"],
+        )
 
     def tearDown(self) -> None:
         self.nosql_cli.delete_table(
