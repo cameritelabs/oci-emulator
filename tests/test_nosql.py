@@ -35,12 +35,18 @@ class NosqlRoutes(unittest.TestCase):
 
     def test_get_table(self):
         response = self.nosql_cli.get_table(
-            table_name_or_id=self.oci_config["compartment_id"]
+            table_name_or_id=self.table_name,
+            compartment_id=self.oci_config["compartment_id"],
         )
         self.assertEquals(response.data.name, self.table_name)
         self.assertEquals(response.data.ddl_statement, self.ddl_statement)
 
     def test_get_empty_row(self):
+        response = self.nosql_cli.get_table(
+            table_name_or_id=self.table_name,
+            compartment_id=self.oci_config["compartment_id"],
+        )
+
         nosql_row = UpdateRowDetails()
         nosql_row.value = {
             "first": "not-value",
@@ -48,28 +54,39 @@ class NosqlRoutes(unittest.TestCase):
             "third": True,
         }
         self.nosql_cli.update_row(
-            table_name_or_id=self.oci_config["compartment_id"],
+            table_name_or_id=response.data.id,
             update_row_details=nosql_row,
         )
 
         response = self.nosql_cli.get_row(
-            table_name_or_id=self.oci_config["compartment_id"],
+            table_name_or_id=self.table_name,
+            compartment_id=self.oci_config["compartment_id"],
             key=["first:value", "second:no-value"],
         )
         self.assertEquals(response.data.value, None)
 
     def test_get_row_not_key(self):
+        response = self.nosql_cli.get_table(
+            table_name_or_id=self.table_name,
+            compartment_id=self.oci_config["compartment_id"],
+        )
+        table_id = response.data.id
+
         nosql_row = UpdateRowDetails()
         nosql_row.value = {
             "first": "not-value",
             "second": 1,
             "third": True,
         }
-        nosql_row.compartment_id = self.oci_config["compartment_id"]
-        self.nosql_cli.update_row(self.table_name, nosql_row)
+
+        self.nosql_cli.update_row(
+            table_name_or_id=table_id,
+            update_row_details=nosql_row,
+        )
 
         response = self.nosql_cli.get_row(
-            table_name_or_id=self.oci_config["compartment_id"],
+            table_name_or_id=self.table_name,
+            compartment_id=self.oci_config["compartment_id"],
             key=[
                 "dump:value",
             ],
@@ -77,6 +94,12 @@ class NosqlRoutes(unittest.TestCase):
         self.assertEquals(response.data.value, None)
 
     def test_get_row(self):
+        response = self.nosql_cli.get_table(
+            table_name_or_id=self.table_name,
+            compartment_id=self.oci_config["compartment_id"],
+        )
+        table_id = response.data.id
+
         nosql_row = UpdateRowDetails()
         nosql_row.value = {
             "first": "not-value",
@@ -84,18 +107,22 @@ class NosqlRoutes(unittest.TestCase):
             "third": True,
         }
         nosql_row.compartment_id = self.oci_config["compartment_id"]
-        self.nosql_cli.update_row(self.table_name, nosql_row)
+        self.nosql_cli.update_row(
+            table_name_or_id=self.table_name, update_row_details=nosql_row
+        )
 
         nosql_row.value = {
             "first": "value",
             "second": 0,
             "third": True,
         }
-        nosql_row.compartment_id = self.oci_config["compartment_id"]
-        self.nosql_cli.update_row(self.table_name, nosql_row)
+
+        self.nosql_cli.update_row(
+            table_name_or_id=table_id, update_row_details=nosql_row
+        )
 
         response = self.nosql_cli.get_row(
-            table_name_or_id=self.table_name,
+            table_name_or_id=response.data.id,
             key=["first:value", "second:0"],
             compartment_id=self.oci_config["compartment_id"],
         )
@@ -105,7 +132,7 @@ class NosqlRoutes(unittest.TestCase):
         self.assertEquals(response.data.value["third"], True)
 
         self.nosql_cli.delete_row(
-            table_name_or_id=self.table_name,
+            table_name_or_id=table_id,
             key=["first:value", "second:0"],
             compartment_id=self.oci_config["compartment_id"],
         )
@@ -119,6 +146,7 @@ class NosqlRoutes(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.nosql_cli.delete_table(
-            table_name_or_id=self.oci_config["compartment_id"],
+            table_name_or_id=self.table_name,
+            compartment_id=self.oci_config["compartment_id"],
         )
         self.server.shutdown()

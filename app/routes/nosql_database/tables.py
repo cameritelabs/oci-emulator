@@ -60,7 +60,7 @@ def get_table(date, table_name):
             {
                 "compartmentId": table["compartmentId"],
                 "ddlStatement": table["ddlStatement"],
-                "id": None,
+                "id": table["id"],
                 "isAutoReclaimable": None,
                 "lifecycleDetails": None,
                 "lifecycleState": None,
