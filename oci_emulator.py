@@ -1,6 +1,7 @@
 import logging
 
 from flask import Flask
+from flask_cors import CORS
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -17,6 +18,7 @@ from app.routes.middleware import middleware
 
 
 app = Flask(__name__)
+CORS(app)
 app.register_blueprint(sample)
 app.register_blueprint(bucket_operations)
 app.register_blueprint(objects)
