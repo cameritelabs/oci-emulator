@@ -4,7 +4,12 @@ import json
 from flask import Blueprint
 from flask import request, Response
 
-from app.resources.nosql_database.tables import add_table, find_table, remove_table
+from app.resources.nosql_database.tables import (
+    add_table,
+    find_table,
+    remove_table,
+    find_row,
+)
 
 logger = logging.getLogger(__name__)
 tables = Blueprint("tables", __name__)
@@ -29,7 +34,7 @@ def post_table(date):
 @tables.route("/<date>/tables/<table_name>", methods=["DELETE"])
 def delete_table(date, table_name):
 
-    table = find_table(table_name, request.args["compartmentId"])
+    table = find_table(table_name, request.args.get("compartmentId", default=""))
     remove_table(table)
 
     return Response(
@@ -43,12 +48,44 @@ def delete_table(date, table_name):
     )
 
 
+@tables.route("/<date>/tables/<table_name>", methods=["GET"])
+def get_table(date, table_name):
+
+    table = find_table(table_name, request.args.get("compartmentId", default=""))
+    # The idea here is to maybe create a object will all this properties
+    return Response(
+        status=202,
+        content_type="application/json",
+        response=json.dumps(
+            {
+                "compartmentId": table["compartmentId"],
+                "ddlStatement": table["ddlStatement"],
+                "id": table["id"],
+                "isAutoReclaimable": None,
+                "lifecycleDetails": None,
+                "lifecycleState": None,
+                "name": table["name"],
+                "schema": None,
+                "tableLimits": table["tableLimits"],
+                "timeCreated": None,
+                "timeOfExpiration": None,
+                "timeUpdated": None,
+            }
+        ),
+        headers={
+            "opc-request-id": request.headers["Opc-Request-Id"]
+            if "Opc-Request-Id" in request.headers
+            else ""
+        },
+    )
+
+
 @tables.route("/<date>/tables/<table_name>/rows", methods=["PUT"])
 def put_row(date, table_name):
 
     data = json.loads(request.data)
 
-    table = find_table(table_name, data["compartmentId"])
+    table = find_table(table_name, data.get("compartmentId", ""))
     table["_rows"].append(data["value"])
 
     return Response(
@@ -92,7 +129,7 @@ def query(date):
 @tables.route("/<date>/tables/<table_name>/rows", methods=["DELETE"])
 def delete_row(date, table_name):
 
-    table = find_table(table_name, request.args["compartmentId"])
+    table = find_table(table_name, request.args.get("compartmentId", default=""))
 
     keys = request.args.getlist("key")
     k = {}
@@ -103,7 +140,6 @@ def delete_row(date, table_name):
     for row in table["_rows"]:
         found = True
         for key in k:
-            print(key, row[key], k[key])
             if str(row[key]) != k[key]:
                 found = False
 
@@ -114,6 +150,32 @@ def delete_row(date, table_name):
     return Response(
         status=200,
         content_type="application/json",
+        headers={
+            "opc-request-id": request.headers["Opc-Request-Id"]
+            if "Opc-Request-Id" in request.headers
+            else ""
+        },
+    )
+
+
+@tables.route("/<date>/tables/<table_name>/rows", methods=["GET"])
+def get_row(date, table_name):
+
+    table = find_table(table_name, request.args.get("compartmentId", default=""))
+    rows = table["_rows"]
+
+    keys = request.args.getlist("key")
+    k = {}
+    for key in keys:
+        i = key.split(":")
+        k[i[0]] = i[1]
+
+    row = find_row(rows, k)
+
+    return Response(
+        status=200,
+        content_type="application/json",
+        response=json.dumps({"value": row}),
         headers={
             "opc-request-id": request.headers["Opc-Request-Id"]
             if "Opc-Request-Id" in request.headers

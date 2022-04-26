@@ -7,6 +7,7 @@ from flask import Blueprint
 from flask import request, Response
 
 from app.resources.object_storage.buckets import get_bucket, get_object
+from app.resources.object_storage.objects import get_objects
 
 logger = logging.getLogger(__name__)
 objects = Blueprint("objects", __name__)
@@ -59,7 +60,22 @@ def put_object(namespace_name, bucket_name, subpath):
 
 
 @objects.route("/n/<namespace_name>/b/<bucket_name>/o", methods=["GET"])
-def get_objects(namespace_name, bucket_name):
+def list_objects(namespace_name, bucket_name):
+
+    prefix = request.args.get("prefix")
+    start = request.args.get("start")
+    delimiter = request.args.get("delimiter")
+    end = request.args.get("end")
+
+    kwargs = {}
+    if prefix is not None:
+        kwargs["prefix"] = prefix
+    if start is not None:
+        kwargs["start"] = start
+    if end is not None:
+        kwargs["end"] = end
+    if delimiter is not None:
+        kwargs["delimiter"] = delimiter
 
     bucket = get_bucket(namespace=namespace_name, bucket_name=bucket_name)
     if bucket is None:
@@ -79,16 +95,15 @@ def get_objects(namespace_name, bucket_name):
             },
         )
 
+    objects = []
+    prefixes = []
+    if len(bucket["_objects"]):
+        objects, prefixes = get_objects(bucket, **kwargs)
+
     return Response(
         status=200,
         content_type="application/json",
-        response=json.dumps(
-            {
-                "objects": [
-                    {"name": _object["object_name"]} for _object in bucket["_objects"]
-                ]
-            }
-        ),
+        response=json.dumps({"objects": objects, "prefixes": prefixes}),
         headers={
             "opc-request-id": request.headers["Opc-Request-Id"]
             if "Opc-Request-Id" in request.headers

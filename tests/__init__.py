@@ -15,7 +15,6 @@ environ["FINGERPRINT"] = "50:a6:c1:a1:da:71:57:dc:87:ae:90:af:9c:38:99:67"
 environ["TENANCY"] = "ocid1.tenancy.oc1..testtenancy"
 environ["REGION"] = "sa-saopaulo-1"
 environ["KEY_FILE"] = "assets/keys/private_key.pem"
-environ["PASS_PHRASE"] = ""
 environ["COMPARTMENT_ID"] = "ocid1.compartment.oc1..testcompartment"
 
 
@@ -41,7 +40,6 @@ def get_oci_config():
             "tenancy": environ["TENANCY"],
             "region": environ["REGION"],
             "key_file": environ["KEY_FILE"],
-            "pass_phrase": environ["PASS_PHRASE"],
         },
         "compartment_id": environ["COMPARTMENT_ID"],
     }
