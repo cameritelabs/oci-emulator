@@ -1,43 +1,17 @@
 import unittest
-from threading import Thread
-import requests
 
+import requests
 import oci
-from werkzeug.serving import make_server
 
 from oci_emulator import app
-
-
-class ServerThread(Thread):
-    def __init__(self, app):
-        Thread.__init__(self)
-        self.srv = make_server("127.0.0.1", 12000, app)
-        self.ctx = app.app_context()
-        self.ctx.push()
-
-    def run(self):
-        self.srv.serve_forever()
-
-    def shutdown(self):
-        self.srv.shutdown()
+from . import get_oci_config, ServerThread
 
 
 class BucketRoutes(unittest.TestCase):
     def setUp(self):
         self.server = ServerThread(app)
         self.server.start()
-
-        self.oci_config = {
-            "config": {
-                "user": "ocid1.user.oc1..random",
-                "fingerprint": "50:a6:c1:a1:da:71:57:dc:87:ae:90:af:9c:38:99:67",
-                "tenancy": "ocid1.tenancy.oc1..random",
-                "region": "sa-saopaulo-1",
-                "key_file": "assets/keys/private_key.pem",
-                "pass_phrase": "",
-            },
-            "test_compartment_id": "ocid1.compartment.oc1..randomcompartment",
-        }
+        self.oci_config = get_oci_config()
 
     def test_no_auth(self):
         r = requests.get("http://localhost:12000/n/namespace/b")
