@@ -30,7 +30,9 @@ def create_instance(
     utc_datetime = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     display_name = f"instance_{instance_id}"
 
-    if (name := kwargs.get("display_name")) :
+    name = kwargs.get("display_name")
+
+    if name:
         display_name = name
 
     instance = {
