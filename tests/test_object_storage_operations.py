@@ -135,6 +135,70 @@ class BucketRoutes(unittest.TestCase):
         r = cli.delete_bucket(namespace_name=namespace_name, bucket_name="bucket_name")
         self.assertEqual(r.status, 204)
 
+    def test_bucket_and_object_using_disposition(self):
+        cli = oci.object_storage.ObjectStorageClient(
+            self.oci_config["config"], service_endpoint="http://localhost:12000"
+        )
+
+        r = cli.get_namespace()
+        namespace_name = r.data
+
+        create_opts = oci.object_storage.models.CreateBucketDetails(
+            name="bucket_name",
+            compartment_id="compartment_id",
+            public_access_type="ObjectRead",
+            storage_tier="Standard",
+            freeform_tags={"tag_name": "tag_value"},
+            versioning="Disabled",
+        )
+
+        r = cli.create_bucket(
+            namespace_name=namespace_name, create_bucket_details=create_opts
+        )
+        self.assertEqual(r.status, 200)
+
+        r = cli.put_object(
+            namespace_name=namespace_name,
+            bucket_name="bucket_name",
+            object_name="folder/file.txt",
+            put_object_body=b"teste alo testando",
+            content_type="text/plain",
+            cache_control="private, Immutable, max-age=31557600",
+            content_disposition='attachment; filename="xablau"',
+        )
+
+        self.assertEqual(r.status, 200)
+
+        r = cli.list_objects(namespace_name=namespace_name, bucket_name="bucket_name")
+        self.assertEqual(r.status, 200)
+        r.data: oci.object_storage.models.list_objects.ListObjects
+
+        self.assertEqual(len(r.data.objects), 1)
+
+        r = requests.get(
+            "http://localhost:12000/n/namespace_name/b/bucket_name/o/folder/file.txt"
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.text, "teste alo testando")
+        self.assertEqual(
+            r.headers["Content-Disposition"], 'attachment; filename="xablau"'
+        )
+
+        r = cli.delete_object(
+            namespace_name=namespace_name,
+            bucket_name="bucket_name",
+            object_name="folder/file.txt",
+        )
+
+        r = cli.list_objects(namespace_name=namespace_name, bucket_name="bucket_name")
+        self.assertEqual(r.status, 200)
+        r.data: oci.object_storage.models.list_objects.ListObjects
+
+        self.assertEqual(len(r.data.objects), 0)
+
+        r = cli.delete_bucket(namespace_name=namespace_name, bucket_name="bucket_name")
+        self.assertEqual(r.status, 204)
+
     def test_object_with_filter(self):
         cli = oci.object_storage.ObjectStorageClient(
             self.oci_config["config"], service_endpoint="http://localhost:12000"
