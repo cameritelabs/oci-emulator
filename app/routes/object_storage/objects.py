@@ -17,12 +17,16 @@ objects = Blueprint("objects", __name__)
 def put_object(namespace_name, bucket_name, subpath):
     cache_control = None
     content_type = None
+    content_disposition = None
 
     if "Cache-Control" in request.headers:
         cache_control = request.headers["Cache-Control"]
 
     if "Content-Type" in request.headers:
         content_type = request.headers["Content-Type"]
+
+    if "Content-Disposition" in request.headers:
+        content_disposition = request.headers["Content-Disposition"]
 
     bucket = get_bucket(namespace=namespace_name, bucket_name=bucket_name)
 
@@ -53,6 +57,7 @@ def put_object(namespace_name, bucket_name, subpath):
             "content_type": content_type,
             "object_name": subpath,
             "ref_obj": ref_obj,
+            "content_disposition": content_disposition,
         }
     )
 
@@ -151,7 +156,10 @@ def get_object_route(namespace_name, bucket_name, subpath):
         status=200,
         content_type=_object["content_type"],
         response=content,
-        headers={"Cache-Control": _object["cache_control"]},
+        headers={
+            "Cache-Control": _object["cache_control"],
+            "Content-Disposition": _object["content_disposition"],
+        },
     )
 
 

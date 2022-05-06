@@ -68,10 +68,13 @@ def launch_instance():
 def list_instances():
     params = {"compartmentId": None, "displayName": None}
 
-    if (compartment_id := request.args.get("compartmentId")) :
+    compartment_id = request.args.get("compartmentId")
+    display_name = request.args.get("displayName")
+
+    if compartment_id:
         params["compartmentId"] = compartment_id
 
-    if (display_name := request.args.get("displayName")) :
+    if display_name:
         params["displayName"] = display_name
 
     return Response(
