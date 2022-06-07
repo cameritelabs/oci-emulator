@@ -2,10 +2,53 @@ import uuid
 
 tables = []
 
+def get_primary_keys(ddl_statement):
+    index = ddl_statement.find("PRIMARY KEY")
+
+    if index == -1:
+        raise Exception('theres no primary key')
+
+    crop = ddl_statement[index+len("PRIMARY KEY"):]
+
+    start_at = None
+    ended_at = None
+    open_parenteses_found = 0
+    close_parenteses_found = 0
+
+    for i in range(len(crop)):
+        letter = crop[i]
+        if letter == "(":
+            if start_at is None:
+                start_at = i
+            open_parenteses_found+=1
+
+        if letter == ")":
+            close_parenteses_found+=1
+            if close_parenteses_found == open_parenteses_found:
+                ended_at = i
+                break
+
+    if open_parenteses_found != close_parenteses_found:
+        raise Exception('invalid primary key')
+
+    crop = crop[start_at+1:ended_at]
+    columns = crop.split(',')
+
+    for i in range(len(columns)):
+        column = columns[i]
+        start_parenteses = column.find('(')
+        if start_parenteses == -1:
+            columns[i] = column.strip()
+            continue
+        end_parenteses = column.find(')')
+        columns[i] = column[start_parenteses+1:end_parenteses].strip()
+
+    return columns
 
 def add_table(table):
     table["_rows"] = []
     table["id"] = f"ocid1.nosqltable.oc1.sa-saopaulo-1.{uuid.uuid4()}"
+    table["_primary_keys"] = get_primary_keys(table["ddlStatement"])
     tables.append(table)
 
 
