@@ -94,7 +94,7 @@ def put_row(date, table_name):
         match = 0
         for primary_key in primary_keys:
             if row[primary_key] == data["value"][primary_key]:
-                match+=1
+                match += 1
 
         if match == len(primary_keys):
             found = True
