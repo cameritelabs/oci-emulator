@@ -86,7 +86,22 @@ def put_row(date, table_name):
     data = json.loads(request.data)
 
     table = find_table(table_name, data.get("compartmentId", ""))
-    table["_rows"].append(data["value"])
+    primary_keys = table["_primary_keys"]
+    found = False
+
+    for i in range(len(table["_rows"])):
+        row = table["_rows"][i]
+        match = 0
+        for primary_key in primary_keys:
+            if row[primary_key] == data["value"][primary_key]:
+                match += 1
+
+        if match == len(primary_keys):
+            found = True
+            table["_rows"][i] = data["value"]
+
+    if not found:
+        table["_rows"].append(data["value"])
 
     return Response(
         status=200,

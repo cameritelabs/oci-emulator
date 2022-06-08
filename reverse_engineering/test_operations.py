@@ -14,8 +14,8 @@ oci_config = {
     }
 }
 
-service_endpoint = None  # Use it to test on a real environment
-# service_endpoint = "http://localhost:12000"  # Use it to test on mock environment
+# service_endpoint = None  # Use it to test on a real environment
+service_endpoint = "http://localhost:12000"  # Use it to test on mock environment
 compartment_id = os.getenv("COMPARTMENT_ID")
 
 cli = oci.object_storage.ObjectStorageClient(
@@ -249,9 +249,9 @@ def create_table():
     print(r.status)
 
 
-def create_row():
+def create_row(campo3="[]"):
     nosql_row = oci.nosql.models.UpdateRowDetails()
-    nosql_row.value = {"campo1": "value1", "campo2": 1}
+    nosql_row.value = {"campo1": "value1", "campo2": 1, "campo3": campo3}
     nosql_row.compartment_id = compartment_id
 
     cli = oci.nosql.NosqlClient(oci_config["config"], service_endpoint=service_endpoint)
@@ -300,12 +300,13 @@ def delete_table():
     print(r.status)
 
 
-a = monitoring()
+# a = monitoring()
 
 # create_bucket()
 # put_object()
-# create_table()
-# create_row()
-# query()
-# delete_row()
-# delete_table()
+create_table()
+create_row()
+create_row(campo3='["abc"]')
+query()
+delete_row()
+delete_table()

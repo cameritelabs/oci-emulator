@@ -130,6 +130,46 @@ class NosqlRoutes(unittest.TestCase):
             table_name_or_id=self.table_id, key=["first:value", "second:0"]
         )
 
+    def test_updating_row_using_id(self):
+        nosql_row = UpdateRowDetails()
+        nosql_row.value = {"first": "value", "second": 0, "third": True}
+        self.nosql_cli.update_row(
+            table_name_or_id=self.table_id, update_row_details=nosql_row
+        )
+
+        response = self.nosql_cli.get_row(
+            table_name_or_id=self.table_id, key=["first:value", "second:0"]
+        )
+
+        self.assertEquals(response.data.value["first"], "value")
+        self.assertEquals(response.data.value["second"], 0)
+        self.assertEquals(response.data.value["third"], True)
+
+        nosql_row = UpdateRowDetails()
+        nosql_row.value = {"first": "value", "second": 0, "third": False}
+        self.nosql_cli.update_row(
+            table_name_or_id=self.table_id, update_row_details=nosql_row
+        )
+
+        response = self.nosql_cli.get_row(
+            table_name_or_id=self.table_id, key=["first:value", "second:0"]
+        )
+
+        self.assertEquals(response.data.value["first"], "value")
+        self.assertEquals(response.data.value["second"], 0)
+        self.assertEquals(response.data.value["third"], False)
+
+        query = f"SELECT * FROM {self.table_name} WHERE third = true"
+        details = QueryDetails(
+            compartment_id=self.oci_config["compartment_id"], statement=query
+        )
+        response = self.nosql_cli.query(details)
+        self.assertEquals(len(response.data.items), 1)
+
+        self.nosql_cli.delete_row(
+            table_name_or_id=self.table_id, key=["first:value", "second:0"]
+        )
+
     def tearDown(self) -> None:
         self.nosql_cli.delete_table(
             table_name_or_id=self.table_name,
