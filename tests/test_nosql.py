@@ -278,6 +278,21 @@ class NosqlRoutes(unittest.TestCase):
             table_name_or_id=self.table_id, key=["first:value", "second:1"]
         )
 
+    def test_invalid_query(self):
+        query = f"SELECT *"
+        details = QueryDetails(
+            compartment_id=self.oci_config["compartment_id"], statement=query
+        )
+        with self.assertRaises(oci.exceptions.ServiceError):
+            self.nosql_cli.query(details)
+
+        query = f"SELECT * FROM"
+        details = QueryDetails(
+            compartment_id=self.oci_config["compartment_id"], statement=query
+        )
+        with self.assertRaises(oci.exceptions.ServiceError):
+            self.nosql_cli.query(details)
+
     def test_updating_row_using_id(self):
         nosql_row = UpdateRowDetails()
         nosql_row.value = {"first": "value", "second": 0, "third": True}
