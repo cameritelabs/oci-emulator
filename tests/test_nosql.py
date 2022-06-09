@@ -89,6 +89,14 @@ class NosqlRoutes(unittest.TestCase):
         with self.assertRaises(oci.exceptions.ServiceError):
             self.nosql_cli.create_table(nosql_details)
 
+        # invalid column type
+        nosql_details = get_nosql_details(
+            ddl_statement=f"""CREATE TABLE {table_name} ( campo1 invalid_type, PRIMARY KEY ( SHARD ( stream_name ), start ) )""",
+            compartment_id=self.oci_config["compartment_id"],
+        )
+        with self.assertRaises(oci.exceptions.ServiceError):
+            self.nosql_cli.create_table(nosql_details)
+
         # invalid column details
         nosql_details = get_nosql_details(
             ddl_statement=f"""CREATE TABLE {table_name} ( campo1 string invalid_details, PRIMARY KEY ( SHARD ( stream_name ), start ) )""",
