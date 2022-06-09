@@ -286,7 +286,7 @@ class NosqlRoutes(unittest.TestCase):
         with self.assertRaises(oci.exceptions.ServiceError):
             self.nosql_cli.query(details)
 
-        query = f"SELECT * FROM"
+        query = f"SELECT * FROM "
         details = QueryDetails(
             compartment_id=self.oci_config["compartment_id"], statement=query
         )
