@@ -1,6 +1,7 @@
+import os
+
 import dotenv
 import oci
-import os
 
 dotenv.load_dotenv()
 
@@ -226,7 +227,7 @@ def delete_object():
 def create_table():
 
     ddl_statement = """
-    CREATE TABLE table_name ( campo1 string, campo2 number, campo3 string DEFAULT "[]" NOT NULL, PRIMARY KEY ( SHARD ( campo1 ), campo2 ) )
+    CREATE TABLE table_name ( campo1 string, campo2 number, campo3 string DEFAULT "[]" NOT NULL, campo4 boolean, campoJSON json, PRIMARY KEY ( SHARD ( campo1 ), campo2 ) )
     """
 
     table_limits = oci.nosql.models.TableLimits(
@@ -249,9 +250,20 @@ def create_table():
     print(r.status)
 
 
-def create_row(campo3="[]"):
+def create_row(campo1="value1", campo2=1, campo3=None, campo4=None, campoJSON=None):
     nosql_row = oci.nosql.models.UpdateRowDetails()
-    nosql_row.value = {"campo1": "value1", "campo2": 1, "campo3": campo3}
+    nosql_row.value = {
+        "campo1": "value1",
+        "campo2": 1,
+        "randomproptobeignored": "value",
+    }
+    if campo3 is not None:
+        nosql_row.value["campo3"] = campo3
+    if campo4 is not None:
+        nosql_row.value["campo4"] = campo4
+    if campoJSON is not None:
+        nosql_row.value["campoJSON"] = campoJSON
+
     nosql_row.compartment_id = compartment_id
 
     cli = oci.nosql.NosqlClient(oci_config["config"], service_endpoint=service_endpoint)
@@ -276,6 +288,7 @@ def query():
     print(r.headers)
     print(r.data)
     print(r.status)
+    return r.data
 
 
 def delete_row():
@@ -306,7 +319,7 @@ def delete_table():
 # put_object()
 create_table()
 create_row()
-create_row(campo3='["abc"]')
-query()
-delete_row()
+# create_row(campo4=False, campoJSON={"abc": 123, "numero": False, "letra": "123"})
+a = query()
+# delete_row()
 delete_table()
