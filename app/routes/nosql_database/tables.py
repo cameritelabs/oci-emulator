@@ -9,6 +9,7 @@ from app.resources.nosql_database.tables import (
     find_table,
     remove_table,
     find_row,
+    put_row_on_table,
 )
 
 logger = logging.getLogger(__name__)
@@ -16,7 +17,7 @@ tables = Blueprint("tables", __name__)
 
 
 @tables.route("/<date>/tables", methods=["POST"])
-def post_table(date):
+def post_table(date: str):
 
     add_table(json.loads(request.data))
 
@@ -32,7 +33,7 @@ def post_table(date):
 
 
 @tables.route("/<date>/tables/<table_name>", methods=["DELETE"])
-def delete_table(date, table_name):
+def delete_table(date: str, table_name: str):
 
     table = find_table(table_name, request.args.get("compartmentId", default=""))
     remove_table(table)
@@ -49,7 +50,7 @@ def delete_table(date, table_name):
 
 
 @tables.route("/<date>/tables/<table_name>", methods=["GET"])
-def get_table(date, table_name):
+def get_table(date: str, table_name: str):
 
     table = find_table(table_name, request.args.get("compartmentId", default=""))
     # The idea here is to maybe create a object will all this properties
@@ -81,27 +82,12 @@ def get_table(date, table_name):
 
 
 @tables.route("/<date>/tables/<table_name>/rows", methods=["PUT"])
-def put_row(date, table_name):
+def put_row(date: str, table_name: str):
 
     data = json.loads(request.data)
 
     table = find_table(table_name, data.get("compartmentId", ""))
-    primary_keys = table["_primary_keys"]
-    found = False
-
-    for i in range(len(table["_rows"])):
-        row = table["_rows"][i]
-        match = 0
-        for primary_key in primary_keys:
-            if row[primary_key] == data["value"][primary_key]:
-                match += 1
-
-        if match == len(primary_keys):
-            found = True
-            table["_rows"][i] = data["value"]
-
-    if not found:
-        table["_rows"].append(data["value"])
+    put_row_on_table(table, data)
 
     return Response(
         status=200,
@@ -115,7 +101,7 @@ def put_row(date, table_name):
 
 
 @tables.route("/<date>/query", methods=["POST"])
-def query(date):
+def query(date: str):
 
     data = json.loads(request.data)
     stmt = data["statement"].split(" ")
@@ -142,7 +128,7 @@ def query(date):
 
 
 @tables.route("/<date>/tables/<table_name>/rows", methods=["DELETE"])
-def delete_row(date, table_name):
+def delete_row(date: str, table_name: str):
 
     table = find_table(table_name, request.args.get("compartmentId", default=""))
 
@@ -174,7 +160,7 @@ def delete_row(date, table_name):
 
 
 @tables.route("/<date>/tables/<table_name>/rows", methods=["GET"])
-def get_row(date, table_name):
+def get_row(date: str, table_name: str):
 
     table = find_table(table_name, request.args.get("compartmentId", default=""))
     rows = table["_rows"]
