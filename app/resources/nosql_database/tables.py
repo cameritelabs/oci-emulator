@@ -314,10 +314,8 @@ def parse_query(query: str):
 
     if index == -1:
         table_name = query
-        # query = ""
     else:
         table_name = query[:index]
-        # query = query[index + 1 :]
 
     if table_name == "":
         raise Exception("there no table name on query")
