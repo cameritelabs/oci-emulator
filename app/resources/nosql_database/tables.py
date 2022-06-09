@@ -217,8 +217,6 @@ def put_row_on_table(table: Table, data: RowParam):
 
         new_data[column["column_name"]] = value
 
-        print("valor", new_data[column["column_name"]])
-
         if (
             column["column_type"] in ["boolean"]
             and value not in ["true", "false"]
