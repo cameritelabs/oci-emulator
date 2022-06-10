@@ -1,7 +1,7 @@
 import uuid
 import json
 from enum import Enum
-from typing import TypedDict, List, Dict
+from typing import TypedDict, List, Dict, Tuple, Optional
 
 
 class Operator(Enum):
@@ -12,8 +12,19 @@ class Operator(Enum):
     EQ = "EQ"
 
 
+class Order(Enum):
+    ASC = "ASC"
+    DESC = "DESC"
+
+
+class QueryOrderBy(object):
+    def __init__(self, column: str, order: Order) -> None:
+        self.column: str = column
+        self.order: Order = order
+
+
 class QueryFilter(object):
-    def __init__(self, column, value, operator) -> None:
+    def __init__(self, column: str, value: any, operator: Operator) -> None:
         self.column: str = column
         self.value: any = value
         self.operator: Operator = operator
@@ -300,7 +311,7 @@ def remove_table(table: Table):
     tables.remove(table)
 
 
-def parse_query(query: str):
+def parse_query(query: str) -> Tuple[str, List[QueryFilter], Optional[QueryOrderBy]]:
 
     index = query.find(" FROM ")
 
@@ -326,10 +337,19 @@ def parse_query(query: str):
     filters: List[QueryFilter] = []
 
     query_order = ""
+    order_by = None
 
     if index_order_by != -1:
         query_order = query[index_order_by + len(" ORDER BY ") :].strip()
         query = query[:index_order_by].strip()
+
+        if "ASC" in query_order:
+            query_order = query_order.replace("ASC", "")
+            order_by = QueryOrderBy(column=query_order.strip(), order=Order.ASC)
+
+        if "DESC" in query_order:
+            query_order = query_order.replace("DESC", "")
+            order_by = QueryOrderBy(column=query_order.strip(), order=Order.DESC)
 
     if index_where != -1:
         query_filter = query[index_where + len(" WHERE ") :].strip()
@@ -381,7 +401,7 @@ def parse_query(query: str):
                 )
                 continue
 
-    return table_name, filters, query_order
+    return table_name, filters, order_by
 
 
 def set_filter_types(filters: List[QueryFilter], table: Table):
@@ -412,7 +432,7 @@ def set_filter_types(filters: List[QueryFilter], table: Table):
 
 
 def query_rows(query: str, compartment_id: str) -> List[Dict[str, any]]:
-    table_name, filters, _ = parse_query(query)
+    table_name, filters, order_by = parse_query(query)
     table = find_table(table_name, compartment_id)
     set_filter_types(filters, table)
 
@@ -443,6 +463,11 @@ def query_rows(query: str, compartment_id: str) -> List[Dict[str, any]]:
 
         if all(filters_matched):
             results.append(row)
+
+    if order_by:
+        results.sort(
+            key=lambda x: x[order_by.column], reverse=order_by.order == Order.DESC
+        )
 
     return results
 
