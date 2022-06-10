@@ -1,6 +1,25 @@
 import uuid
 import json
+from enum import Enum
 from typing import TypedDict, List, Dict
+
+
+class Operator(Enum):
+    GTE = "GTE"
+    LTE = "LTE"
+    GT = "GT"
+    LT = "LT"
+    EQ = "EQ"
+
+
+class QueryFilter(object):
+    def __init__(self, column, value, operator) -> None:
+        self.column: str = column
+        self.value: any = value
+        self.operator: Operator = operator
+
+    def __repr__(self) -> str:
+        return f"QueryFilter(column={self.column}, value={self.value}, operator={self.operator})"
 
 
 class TableLimits(TypedDict):
@@ -279,6 +298,153 @@ def find_table(table_name_or_id: str, compartment_id: str) -> Table:
 
 def remove_table(table: Table):
     tables.remove(table)
+
+
+def parse_query(query: str):
+
+    index = query.find(" FROM ")
+
+    if index == -1:
+        raise Exception("theres no FROM on query")
+
+    query = query[index + len(" FROM ") :].strip()
+    index = query.find(" ")
+
+    table_name = ""
+
+    if index == -1:
+        table_name = query
+    else:
+        table_name = query[:index]
+
+    if table_name == "":
+        raise Exception("there no table name on query")
+
+    index_where = query.find(" WHERE ")
+    index_order_by = query.find(" ORDER BY ")
+
+    filters: List[QueryFilter] = []
+
+    query_order = ""
+
+    if index_order_by != -1:
+        query_order = query[index_order_by + len(" ORDER BY ") :].strip()
+        query = query[:index_order_by].strip()
+
+    if index_where != -1:
+        query_filter = query[index_where + len(" WHERE ") :].strip()
+        where_arguments = query_filter.split(" and ")
+
+        for where_argument in where_arguments:
+            if ">=" in where_argument:
+                column, value = where_argument.split(">=")
+                filters.append(
+                    QueryFilter(
+                        column=column.strip(),
+                        value=value.strip(),
+                        operator=Operator.GTE,
+                    )
+                )
+                continue
+            if "<=" in where_argument:
+                column, value = where_argument.split("<=")
+                filters.append(
+                    QueryFilter(
+                        column=column.strip(),
+                        value=value.strip(),
+                        operator=Operator.LTE,
+                    )
+                )
+                continue
+            if "=" in where_argument:
+                column, value = where_argument.split("=")
+                filters.append(
+                    QueryFilter(
+                        column=column.strip(), value=value.strip(), operator=Operator.EQ
+                    )
+                )
+                continue
+            if ">" in where_argument:
+                column, value = where_argument.split(">")
+                filters.append(
+                    QueryFilter(
+                        column=column.strip(), value=value.strip(), operator=Operator.GT
+                    )
+                )
+                continue
+            if "<" in where_argument:
+                column, value = where_argument.split("<")
+                filters.append(
+                    QueryFilter(
+                        column=column.strip(), value=value.strip(), operator=Operator.LT
+                    )
+                )
+                continue
+
+    return table_name, filters, query_order
+
+
+def set_filter_types(filters: List[QueryFilter], table: Table):
+    for filter in filters:
+        columns = table["_columns"]
+        found = False
+        for column in columns:
+            if column["column_name"] == filter.column:
+                column_type = column["column_type"]
+
+                if column_type in ["string"]:
+                    filter.value = filter.value.replace("'", "")
+                if column_type in ["number", "long", "float"]:
+                    filter.value = float(filter.value)
+                if column_type in ["integer"]:
+                    filter.value = int(filter.value)
+                if column_type in ["boolean"] and filter.value == "true":
+                    filter.value = True
+                if column_type in ["boolean"] and filter.value == "false":
+                    filter.value = False
+                if column_type in ["json"]:
+                    filter.value = json.loads(filter.value)
+
+                found = True
+
+        if not found:
+            raise Exception(f"column {filter.name} doesnt exist")
+
+
+def query_rows(query: str, compartment_id: str) -> List[Dict[str, any]]:
+    table_name, filters, _ = parse_query(query)
+    table = find_table(table_name, compartment_id)
+    set_filter_types(filters, table)
+
+    results = []
+
+    rows = table["_rows"]
+
+    for row in rows:
+        filters_matched = []
+
+        for filter in filters:
+            if filter.operator == Operator.EQ and row[filter.column] == filter.value:
+                filters_matched.append(True)
+                continue
+            if filter.operator == Operator.LT and row[filter.column] < filter.value:
+                filters_matched.append(True)
+                continue
+            if filter.operator == Operator.GT and row[filter.column] > filter.value:
+                filters_matched.append(True)
+                continue
+            if filter.operator == Operator.LTE and row[filter.column] <= filter.value:
+                filters_matched.append(True)
+                continue
+            if filter.operator == Operator.GTE and row[filter.column] >= filter.value:
+                filters_matched.append(True)
+                continue
+            filters_matched.append(False)
+
+        if all(filters_matched):
+            results.append(row)
+
+    return results
 
 
 def find_row(rows: List[Dict[str, any]], keys: List[str]):

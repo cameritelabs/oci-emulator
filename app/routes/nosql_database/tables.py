@@ -10,6 +10,7 @@ from app.resources.nosql_database.tables import (
     remove_table,
     find_row,
     put_row_on_table,
+    query_rows,
 )
 
 logger = logging.getLogger(__name__)
@@ -104,16 +105,7 @@ def put_row(date: str, table_name: str):
 def query(date: str):
 
     data = json.loads(request.data)
-    stmt = data["statement"].split(" ")
-
-    table_name = ""
-    for i in range(len(stmt)):
-        if stmt[i] == "FROM":
-            table_name = stmt[i + 1]
-            break
-
-    table = find_table(table_name, data["compartmentId"])
-    rows = table["_rows"]
+    rows = query_rows(data["statement"], data["compartmentId"])
 
     return Response(
         status=200,
