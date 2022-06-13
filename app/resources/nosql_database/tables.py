@@ -353,7 +353,7 @@ def parse_query(query: str) -> Tuple[str, List[QueryFilter], Optional[QueryOrder
 
     if index_where != -1:
         query_filter = query[index_where + len(" WHERE ") :].strip()
-        where_arguments = query_filter.split(" and ")
+        where_arguments = query_filter.replace(" AND ", " and ").split(" and ")
 
         for where_argument in where_arguments:
             if ">=" in where_argument:
