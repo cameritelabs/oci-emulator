@@ -1,8 +1,8 @@
 FROM python:3.9.2-buster
 
-COPY . /root/oci-emulator
-
 RUN apt update
+
+COPY . /root/oci-emulator
 
 WORKDIR /root/oci-emulator
 
