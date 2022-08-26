@@ -58,13 +58,14 @@ def put_object(namespace_name, bucket_name, subpath):
             "object_name": subpath,
             "ref_obj": ref_obj,
             "content_disposition": content_disposition,
+            "etag": str(uuid.uuid4())
         }
     )
 
     return Response(
         status=200,
         headers={
-            "etag": str(uuid.uuid4()),
+            "etag": bucket["_objects"][-1]["etag"],
             "opc-request-id": request.headers["Opc-Request-Id"]
             if "Opc-Request-Id" in request.headers
             else ""
@@ -118,7 +119,6 @@ def list_objects(namespace_name, bucket_name):
         content_type="application/json",
         response=json.dumps({"objects": objects, "prefixes": prefixes}),
         headers={
-            "etag": str(uuid.uuid4()),
             "opc-request-id": request.headers["Opc-Request-Id"]
             if "Opc-Request-Id" in request.headers
             else ""
@@ -166,7 +166,7 @@ def get_object_route(namespace_name, bucket_name, subpath):
         content_type=_object["content_type"],
         response=content,
         headers={
-            "etag": str(uuid.uuid4()),
+            "etag": _object["etag"],
             "Cache-Control": _object["cache_control"],
             "Content-Disposition": _object["content_disposition"],
         },
