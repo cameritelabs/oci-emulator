@@ -58,7 +58,7 @@ def put_object(namespace_name, bucket_name, subpath):
             "object_name": subpath,
             "ref_obj": ref_obj,
             "content_disposition": content_disposition,
-            "etag": str(uuid.uuid4())
+            "etag": str(uuid.uuid4()),
         }
     )
 
@@ -68,8 +68,8 @@ def put_object(namespace_name, bucket_name, subpath):
             "etag": bucket["_objects"][-1]["etag"],
             "opc-request-id": request.headers["Opc-Request-Id"]
             if "Opc-Request-Id" in request.headers
-            else ""
-        }
+            else "",
+        },
     )
 
 
