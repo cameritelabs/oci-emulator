@@ -2,6 +2,7 @@ import logging
 
 from os import environ
 from threading import Thread
+from typing import TypedDict
 
 from werkzeug.serving import make_server
 
@@ -32,7 +33,20 @@ class ServerThread(Thread):
         self.srv.shutdown()
 
 
-def get_oci_config():
+class Config(TypedDict):
+    user: str
+    fingerprint: str
+    tenancy: str
+    region: str
+    key_file: str
+
+
+class OciConfig(TypedDict):
+    config: Config
+    compartment_id: str
+
+
+def get_oci_config() -> OciConfig:
     return {
         "config": {
             "user": environ["USER"],
