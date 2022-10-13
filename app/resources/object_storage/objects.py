@@ -8,7 +8,10 @@ def get_objects(
     end: str = None,
     delimiter: str = None,
 ) -> Tuple[list, list]:
-    _objects = [{"name": _object["object_name"]} for _object in bucket["_objects"]]
+    _objects = [
+        {"name": _object["object_name"], "etag": _object["etag"]}
+        for _object in bucket["_objects"]
+    ]
     _prefixes = []
 
     if prefix is not None:
