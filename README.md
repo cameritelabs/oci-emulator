@@ -1,6 +1,6 @@
 # oci-emulator
 
-![Generic badge](https://img.shields.io/badge/python-3.9.2-blue)
+![Generic badge](https://img.shields.io/badge/python-3.11.1-blue)
 ![Generic badge](https://img.shields.io/github/license/cameritelabs/oci-emulator)
 ![Generic badge](https://img.shields.io/badge/code%20style-black-000000.svg)
 ![Python application](https://github.com/cameritelabs/oci-emulator/workflows/Python%20application/badge.svg)
@@ -24,12 +24,12 @@ You also should use virtualenv to build/develop the project and I recommend the 
 
 ```bash
 pyenv update
-pyenv install 3.9.2
-pyenv virtualenv 3.9.2 oci-emulator
+pyenv install 3.11.1
+pyenv virtualenv 3.11.1 oci-emulator
 pyenv activate oci-emulator # in case your bash don't automatic activate
 ```
 
-## Installing dependencies (Python 3.9.2)
+## Installing dependencies (Python 3.11.1)
 
 Open your bash and run the following commands to install the required dependencies to run the project, you just need to run the command one time.
 
@@ -38,7 +38,7 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-## Installing test dependencies (Python 3.9.2)
+## Installing test dependencies (Python 3.11.1)
 
 For testing and development, you'll need to download test dependencies. To do so, run the commands below on your bash:
 
