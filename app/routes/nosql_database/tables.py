@@ -19,7 +19,6 @@ tables = Blueprint("tables", __name__)
 
 @tables.route("/<date>/tables", methods=["POST"])
 def post_table(date: str):
-
     add_table(json.loads(request.data))
 
     return Response(
@@ -35,7 +34,6 @@ def post_table(date: str):
 
 @tables.route("/<date>/tables/<table_name>", methods=["DELETE"])
 def delete_table(date: str, table_name: str):
-
     table = find_table(table_name, request.args.get("compartmentId", default=""))
     remove_table(table)
 
@@ -52,7 +50,6 @@ def delete_table(date: str, table_name: str):
 
 @tables.route("/<date>/tables/<table_name>", methods=["GET"])
 def get_table(date: str, table_name: str):
-
     table = find_table(table_name, request.args.get("compartmentId", default=""))
     # The idea here is to maybe create a object will all this properties
     return Response(
@@ -84,7 +81,6 @@ def get_table(date: str, table_name: str):
 
 @tables.route("/<date>/tables/<table_name>/rows", methods=["PUT"])
 def put_row(date: str, table_name: str):
-
     data = json.loads(request.data)
 
     table = find_table(table_name, data.get("compartmentId", ""))
@@ -103,7 +99,6 @@ def put_row(date: str, table_name: str):
 
 @tables.route("/<date>/query", methods=["POST"])
 def query(date: str):
-
     data = json.loads(request.data)
     rows = query_rows(data["statement"], data["compartmentId"])
 
@@ -121,7 +116,6 @@ def query(date: str):
 
 @tables.route("/<date>/tables/<table_name>/rows", methods=["DELETE"])
 def delete_row(date: str, table_name: str):
-
     table = find_table(table_name, request.args.get("compartmentId", default=""))
 
     keys = request.args.getlist("key")
@@ -133,7 +127,7 @@ def delete_row(date: str, table_name: str):
     for row in table["_rows"]:
         found = True
         for key in k:
-            if str(row[key]) != k[key]:
+            if str(row[key]) != k[key] and str(row[key]) != k[key] + ".0":
                 found = False
 
         if found:
@@ -153,7 +147,6 @@ def delete_row(date: str, table_name: str):
 
 @tables.route("/<date>/tables/<table_name>/rows", methods=["GET"])
 def get_row(date: str, table_name: str):
-
     table = find_table(table_name, request.args.get("compartmentId", default=""))
     rows = table["_rows"]
 
