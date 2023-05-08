@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "dotenv": "6.0.0",
+    "oci-sdk": "1.17.0"
+  }
+}

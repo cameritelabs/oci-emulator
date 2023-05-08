@@ -89,6 +89,7 @@ def put_row(date: str, table_name: str):
     return Response(
         status=200,
         content_type="application/json",
+        response=json.dumps({}),
         headers={
             "opc-request-id": request.headers["Opc-Request-Id"]
             if "Opc-Request-Id" in request.headers
