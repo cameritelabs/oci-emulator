@@ -1,6 +1,6 @@
 Flask==1.1.2
 requests==2.25.1
-oci==2.32.1
+oci==2.112.2
 python-dotenv==0.15.0
 itsdangerous==2.0.1
 Jinja2==3.0.3

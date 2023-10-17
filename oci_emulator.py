@@ -15,6 +15,7 @@ from app.routes.object_storage.namespace import namespace
 from app.routes.compute_cli import compute
 from app.routes.identity import identity
 from app.routes.nosql_database.tables import tables
+from app.routes.queues.queues import queues
 from app.routes.middleware import middleware
 
 
@@ -27,6 +28,7 @@ app.register_blueprint(namespace)
 app.register_blueprint(compute, url_prefix="/20160918")
 app.register_blueprint(identity, url_prefix="/20160918")
 app.register_blueprint(tables)
+app.register_blueprint(queues)
 app.wsgi_app = middleware(app.wsgi_app)
 
 if __name__ == "__main__":
