@@ -4,11 +4,17 @@ import json
 from flask import Blueprint
 from flask import request, Response
 
-from app.resources.queues.queues import add_queue, delete_queue, get_queue_by_id, list_queues
+from app.resources.queues.queues import (
+    add_queue,
+    delete_queue,
+    get_queue_by_id,
+    list_queues,
+)
 
 
 logger = logging.getLogger(__name__)
 queues = Blueprint("queues", __name__)
+
 
 @queues.route("/<date>/queues", methods=["POST"])
 def post_queues(date: str):
@@ -25,6 +31,7 @@ def post_queues(date: str):
             else ""
         },
     )
+
 
 @queues.route("/<date>/queues", methods=["GET"])
 def get_list_queues(date: str):
@@ -44,6 +51,7 @@ def get_list_queues(date: str):
         },
     )
 
+
 @queues.route("/<date>/queues/<queue_id>", methods=["GET"])
 def get_queues(date: str, queue_id: str):
 
@@ -59,6 +67,7 @@ def get_queues(date: str, queue_id: str):
             else ""
         },
     )
+
 
 @queues.route("/<date>/queues/<queue_id>", methods=["DELETE"])
 def delete_queues(date: str, queue_id: str):
