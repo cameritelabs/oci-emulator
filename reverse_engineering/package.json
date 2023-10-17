@@ -1,6 +1,12 @@
 {
+  "scripts": {
+    "app": "ts-node app.ts"
+  },
   "dependencies": {
-    "dotenv": "6.0.0",
-    "oci-sdk": "1.17.0"
+    "dotenv": "^16.0.1",
+    "oci-sdk": "^2.70.1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1"
   }
 }

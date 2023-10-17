@@ -26,7 +26,9 @@ You also should use virtualenv to build/develop the project and I recommend the 
 pyenv update
 pyenv install 3.11.1
 pyenv virtualenv 3.11.1 oci-emulator
-pyenv activate oci-emulator # in case your bash don't automatic activate
+
+# in case your bash don't automatic activate
+pyenv activate oci-emulator 
 ```
 
 ## Installing dependencies (Python 3.11.1)
