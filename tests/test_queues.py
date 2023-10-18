@@ -28,7 +28,7 @@ class QueuesRoutes(unittest.TestCase):
         self.assertEqual(r.status, 200)
 
         # list queues
-        r = cli.list_queues(compartment_id="compartment_id")
+        r = cli.list_queues(compartment_id="compartment_id", lifecycle_state="ACTIVE")
         self.assertEqual(r.status, 200)
         self.assertEqual(len(r.data.items), 1)
         self.assertEqual(r.data.items[0].display_name, "queue_test")
