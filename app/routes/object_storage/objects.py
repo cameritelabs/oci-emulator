@@ -51,6 +51,12 @@ def put_object(namespace_name, bucket_name, subpath):
     with open(f"tmp/{ref_obj}", "wb") as file:
         file.write(request.data)
 
+    # remove the existing object from the bucket if exists
+    index = next((i for i, obj in enumerate(bucket["_objects"]) if obj["object_name"] == subpath), None)
+    if index is not None:
+        os.remove(f"tmp/{bucket['_objects'][index]['ref_obj']}")
+        del bucket["_objects"][index]
+
     bucket["_objects"].append(
         {
             "cache_control": cache_control,
