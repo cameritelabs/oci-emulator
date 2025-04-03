@@ -59,6 +59,7 @@ def put_object(namespace_name, bucket_name, subpath):
             "ref_obj": ref_obj,
             "content_disposition": content_disposition,
             "etag": str(uuid.uuid4()),
+            "size": len(request.data),
         }
     )
 

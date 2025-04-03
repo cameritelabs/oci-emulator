@@ -9,7 +9,11 @@ def get_objects(
     delimiter: str = None,
 ) -> Tuple[list, list]:
     _objects = [
-        {"name": _object["object_name"], "etag": _object["etag"]}
+        {
+            "name": _object["object_name"],
+            "etag": _object["etag"],
+            "size": _object.get("size", 0),
+        }
         for _object in bucket["_objects"]
     ]
     _prefixes = []
