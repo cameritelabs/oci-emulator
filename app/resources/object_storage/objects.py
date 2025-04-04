@@ -13,6 +13,7 @@ def get_objects(
             "name": _object["object_name"],
             "etag": _object["etag"],
             "size": _object.get("size", 0),
+            "timeModified": _object["last_modified"],
         }
         for _object in bucket["_objects"]
     ]

@@ -108,6 +108,17 @@ class BucketRoutes(unittest.TestCase):
 
         self.assertEqual(r.status, 200)
 
+        r = cli.head_object(
+            namespace_name=namespace_name,
+            bucket_name="bucket_name",
+            object_name="folder/file.txt",
+        )
+        self.assertEqual(r.status, 200)
+        self.assertIn("LastModified", r.headers)
+        self.assertIn("Content-Encoding", r.headers)
+        self.assertIn("opc-meta", r.headers)
+        self.assertIn("opc-content-crc32c", r.headers)
+
         r = cli.list_objects(namespace_name=namespace_name, bucket_name="bucket_name")
         self.assertEqual(r.status, 200)
         r.data: oci.object_storage.models.list_objects.ListObjects
