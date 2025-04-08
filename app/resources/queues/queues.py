@@ -25,6 +25,14 @@ def add_queue(queue):
             "lifecycleState": "ACTIVE",
             "lifecycleDetails": None,
             "messagesEndpoint": "http://localhost:12000",
+            # this is not returned by list method
+            "retentionInSeconds": 86400,
+            "visibilityInSeconds": 30,
+            "timeoutInSeconds": 30,
+            "deadLetterQueueDeliveryCount": 0,
+            "customEncryptionKeyId": None,
+            "channelConsumptionLimit": 100,
+            # tags
             "capabilities": [],
             "freeformTags": {},
             "definedTags": {},
@@ -33,9 +41,20 @@ def add_queue(queue):
     )
 
 
-def list_queues(compartment_id):
+def list_queues(compartment_id, lifecycle_state=None):
     global queues
-    return [queue for queue in queues if queue["compartmentId"] == compartment_id]
+    returned_queues = []
+
+    for queue in queues:
+        if queue["compartmentId"] != compartment_id:
+            continue
+
+        if lifecycle_state and queue["lifecycleState"] != lifecycle_state:
+            continue
+
+        returned_queues.append(queue)
+
+    return returned_queues
 
 
 def get_queue_by_id(queue_id):
@@ -50,8 +69,10 @@ def delete_queue(queue_id):
     global queues
     for queue in queues:
         if queue["id"] == queue_id:
-
-            queues.remove(queue)
+            queue["lifecycleState"] = "DELETED"
+            queue["timeUpdated"] = datetime.datetime.utcnow().strftime(
+                "%Y-%m-%dT%H:%M:%S.%f+00:00"
+            )
 
             return True, None
 
